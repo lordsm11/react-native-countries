@@ -1,125 +1,48 @@
-import React from "react";
-import {
-  Button,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-  Text,
-  View,
-  ListView,
-  TextInput
-} from "react-native";
-import service from "./helpers/service";
+import React, { Component } from 'react';
+import { Text, View, StyleSheet, SafeAreaView, Button, StatusBar, Platform } from 'react-native';
+import { StackNavigator, TabNavigator, createDrawerNavigator } from 'react-navigation'; // 1.0.0-beta.27
+import Icon from 'react-native-vector-icons/Ionicons'; // 4.6.0
+import CountryList from './components/CountryList';
 
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: true,
-      allCountries: [],
-      countries: []
-    };
-  }
+const isAndroid = Platform.OS === 'android';
 
-  reset = () => {
-    //    this.setState({ somme: 0})
-  };
+const Screen1 = ({ navigation }) => (
+  <SafeAreaView style={[styles.container, { backgroundColor: '#6a51ae' }]}>
+    <StatusBar
+      barStyle="light-content"
+      backgroundColor="#6a51ae"
+    />
+    <Text style={[styles.paragraph, { color: '#fff' }]}>
+      Light Screen
+    </Text>
+    <Button
+      title="Next screen"
+      onPress={() => navigation.navigate('Screen2')}
+      color={isAndroid ? "blue" : "#fff"}
+    />
+  </SafeAreaView>
+);
 
-  handleCountrySearchChange = value => {
-    this.setState({
-      countries: this.state.allCountries.filter(
-        country =>
-          country.name.toUpperCase().indexOf(value.toUpperCase()) !== -1
-      )
-    });
-  };
-
-  componentWillMount() {
-    var self = this;
-    return service.getAllCountries().then(function(response) {
-      self.setState({
-        isLoading: false,
-        allCountries: response.data,
-        countries: response.data
-      });
-    });
-  }
-
-  render() {
-    if (this.state.isLoading) {
-      return <Text>Loading...</Text>;
-    }
-
-    const dataSource = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 != r2
-    });
-    return (
-      <View style={styles.container}>
-        <StatusBar hidden={true} />
-        <View style={styles.container}>
-          <TextInput
-            style={styles.input}
-            underlineColorAndroid="transparent"
-            placeholder="Search country"
-            placeholderTextColor="#9a73ef"
-            autoCapitalize="none"
-            onChangeText={this.handleCountrySearchChange}
-          />
-
-          <TouchableOpacity style={styles.submitButton} onPress={this.reset()}>
-            <Text style={styles.submitButtonText}> Reset </Text>
-          </TouchableOpacity>
-
-          <View>
-          <Text style={styles.result}>{this.state.countries.length} countries</Text>
-          <Text style={styles.result}>Result : </Text>
-          </View>
-          <ListView
-            dataSource={dataSource.cloneWithRows(this.state.countries)}
-            renderRow={rowData => (
-              <View>
-                <Text>{rowData.name}</Text>
-              </View>
-            )}
-          />
-        </View>
-      </View>
-    );
-  }
-}
+export default createDrawerNavigator({
+  Screen1: {
+    screen: Screen1,
+  },
+  Screen2: {
+    screen: CountryList,
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 23
-  },
-  bloc1: {
-    paddingBottom: 15
-  },
-  bloc2: {
     flex: 1,
-    flexDirection: "row"
+    backgroundColor: '#ecf0f1',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  result: {
-    fontSize: 50
+  paragraph: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#34495e',
   },
-  button: {
-    paddingLeft: 15,
-    width: 100,
-    height: 50
-  },
-  input: {
-    margin: 15,
-    height: 40,
-    borderColor: "#7a42f4",
-    borderWidth: 1
-  },
-  submitButton: {
-    backgroundColor: "#7a42f4",
-    padding: 10,
-    margin: 15,
-    height: 40
-  },
-  submitButtonText: {
-    color: "white"
-  }
 });
